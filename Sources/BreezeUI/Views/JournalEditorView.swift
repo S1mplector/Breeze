@@ -5,7 +5,12 @@ public struct JournalEditorView: View {
     @Binding private var entryBody: String
     private let onSave: () -> Void
     private let onEdit: () -> Void
-    @FocusState private var isBodyFocused: Bool
+
+    enum Field: Hashable {
+        case title
+        case body
+    }
+    @FocusState private var focusedField: Field?
 
     public init(
         title: Binding<String>,
@@ -31,17 +36,19 @@ public struct JournalEditorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, 22)
         .padding(.vertical, 18)
-        .onAppear { isBodyFocused = true }
     }
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline) {
-            TextField("Title", text: $title, axis: .horizontal)
+            TextField("Title", text: $title)
                 .font(BreezeTheme.titleFont)
                 .foregroundStyle(BreezeTheme.ink)
-                .textFieldStyle(.plain)
+                .textFieldStyle(.roundedBorder)
+                .focused($focusedField, equals: .title)
                 .onChange(of: title) { _ in onEdit() }
-                .onSubmit { onSave() }
+                .onSubmit {
+                    focusedField = .body
+                }
 
             Spacer()
 
@@ -71,10 +78,8 @@ public struct JournalEditorView: View {
             .font(BreezeTheme.bodyFont)
             .foregroundStyle(BreezeTheme.ink)
             .scrollContentBackground(.hidden)
-            .background(Color.clear)
-            .focused($isBodyFocused)
+            .focused($focusedField, equals: .body)
             .onChange(of: entryBody) { _ in onEdit() }
-            .onTapGesture { isBodyFocused = true }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

@@ -3,7 +3,6 @@ import BreezeDomain
 
 public struct JournalView: View {
     @StateObject private var viewModel: JournalViewModel
-    @State private var isVisible = false
 
     public init(viewModel: JournalViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -18,9 +17,6 @@ public struct JournalView: View {
         .accentColor(BreezeTheme.accent)
         .onAppear {
             viewModel.load()
-            withAnimation(.easeOut(duration: 0.45)) {
-                isVisible = true
-            }
         }
     }
 
@@ -61,6 +57,7 @@ public struct JournalView: View {
         ZStack {
             BreezeTheme.editorGradient
                 .ignoresSafeArea()
+                .allowsHitTesting(false)
 
             if viewModel.selectedEntryID == nil {
                 EmptyStateView()
@@ -74,8 +71,6 @@ public struct JournalView: View {
                 .transition(.opacity)
             }
         }
-        .opacity(isVisible ? 1 : 0)
-        .animation(.easeOut(duration: 0.45), value: isVisible)
     }
 
     private var selectionBinding: Binding<UUID?> {
